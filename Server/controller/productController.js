@@ -3,6 +3,8 @@ const User = require("../models/usermodel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const validateMongoDbId = require("../utils/validateMongodbld");
+const { cloudinaryUploadImg } = require("../utils/cloudinary.js");
+const fs = require("fs");
 
 const createProduct = asyncHandler(async (req, res) => {
   try {
@@ -146,6 +148,58 @@ const addToWishlist = asyncHandler(async (req, res) => {
 });
 
 
+const uploadImage = asyncHandler(async(req,res)=>{
+  const { id }  = req.params
+  validateMongoDbId(id);
+  try{
+    const uploader = (path) => cloudinaryUploadImg(path, "images");
+    const urls = []
+    const files = req.files
+    for(const file of files){
+      const { path } = file; // Corrected from `files` to `file`
+      const newpath = await uploader(path) 
+      urls.push(newpath)
+      fs.unlinkSync(path)
+    }
+
+    const findProduct = await Product.findByIdAndUpdate(id, { // Corrected from `product` to `Product`
+      images: urls.map((file)=>{ return file })
+    },{
+      new: true
+    })
+
+    res.json(findProduct)
+  }catch (error){
+    throw new Error(error)
+  }
+})
+
+const searchProducts = async (req, res) => {
+  try {
+    const { query } = req.query; // Get the partial query string from the request query parameters
+    const regex = new RegExp(query, "i"); // Create a case-insensitive regex pattern for matching the partial query string
+    
+    // Find products that match the partial query string
+    const suggestions = await Product.find({ title: regex }).limit(10); // Limit the number of suggestions to 10
+    
+    res.json(suggestions); // Return the suggestions as JSON response
+  } catch (error) {
+    console.error("Error fetching search suggestions:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getAllProductsStartingWithLetter = async (req, res) => {
+  try {
+    const { letter } = req.query;
+    const products = await Product.find({ title: { $regex: `^${letter}`, $options: 'i' } });
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   createProduct,
   getaProduct,
@@ -153,5 +207,8 @@ module.exports = {
   updateProduct,
   deleteProduct,
   addToWishlist,
+  uploadImage,
+  searchProducts,
+  getAllProductsStartingWithLetter
 //   rating,
 };

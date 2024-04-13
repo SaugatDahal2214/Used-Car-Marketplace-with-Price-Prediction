@@ -10,6 +10,7 @@ const categoryRouter = require('./routes/categoryRoutes');
 const blogCategoryRouter = require('./routes/blogCatRoutes');
 const brandRouter = require('./routes/brandRoutes');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const { notFound, errorHandler } = require('./middlewares/ErrorHandler');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan')
@@ -21,12 +22,14 @@ app.use(morgan("dev"))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())
+app.use(cors())
+
 
 app.use('/api/user', authRouter)
 app.use('/api/product', productRouter)
 app.use('/api/blog', blogRouter)
 app.use('/api/category', categoryRouter)
-app.use('/api/blog-category', blogCategoryRouter)
+app.use('/api/blogcategory', blogCategoryRouter)
 app.use('/api/brand', brandRouter)
 
 

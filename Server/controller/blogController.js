@@ -2,7 +2,7 @@ const Blog = require("../models/blogModel");
 const User = require("../models/usermodel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbld");
-const cloudinaryUploadImg = require("../utils/cloudinary");
+const { cloudinaryUploadImg } = require("../utils/cloudinary");
 const fs = require("fs");
 const createBlog = asyncHandler(async (req, res) => {
   try {
@@ -167,6 +167,7 @@ const uploadImages = asyncHandler(async (req, res) => {
     const files = req.files;
     for (const file of files) {
       const { path } = file;
+      console.log(path)
       const newpath = await uploader(path);
       console.log(newpath);
       urls.push(newpath);
@@ -188,6 +189,9 @@ const uploadImages = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+
+
 
 module.exports = {
   createBlog,

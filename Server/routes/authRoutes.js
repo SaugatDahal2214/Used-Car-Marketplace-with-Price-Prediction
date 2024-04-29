@@ -24,6 +24,8 @@ const {
   getAllOrders,
   getOrderByUserId,
   updateOrderStatus,
+  addToWishlist,
+  removeFromWishlist,
 } = require("../controller/userController");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 
@@ -34,6 +36,7 @@ router.post("/login", loginUserController);
 router.post("/admin-login", loginAdmin);
 router.post("/cart", authMiddleware, userCart);
 router.post("/cart/cash-order", authMiddleware, createOrder);
+router.post('/wishlist', authMiddleware, addToWishlist);
 router.post("/forgot-password-token", forgotPasswordToken);
 
 router.get("/refresh", handleRefreshToken);
@@ -48,6 +51,8 @@ router.get("/:id", authMiddleware, isAdmin, GetSingleUser);
 
 router.delete("/empty-cart", authMiddleware, emptyCart);
 router.delete("/:id", RemoveUser);
+
+router.delete('/wishlist/:id', authMiddleware, removeFromWishlist);
 
 router.put(
   "/order/update-order/:id",

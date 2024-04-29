@@ -11,9 +11,15 @@ const {
 } = require("../controller/blogController");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const { blogImgResize, uploadPhoto } = require("../middlewares/uploadImage");
+
+const multer = require('multer')
+const upload = multer({dest: 'uploads/'})
+
 const router = express.Router();
 
-router.post("/", authMiddleware, isAdmin, createBlog);
+
+router.post("/",  upload.single('image'), createBlog);
+
 router.put(
   "/upload/:id",
   authMiddleware,

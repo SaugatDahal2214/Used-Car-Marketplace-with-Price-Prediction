@@ -1,28 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Button } from 'react-bootstrap';
-import { base_url } from '../utils/baseUrl';
 
-const AddProductForm = () => {
-  const [productData, setProductData] = useState({
-    title: '',
-    description: '',
-    price: '',
-    category: '',
-    brand: '',
-    quantity: '',
-    tags: '',
-    image: null, // For storing the selected image file
-  });
-
+function CreateProduct() {
+  const navigate = useNavigate();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [brand, setBrand] = useState('');
+  const [category, setCategory] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [price, setPrice] = useState('');
+  const [tags, setTags] = useState('');
+  const [image, setImage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [selectedTag, setSelectedTag] = useState('');
+
+  const userData = JSON.parse(localStorage.getItem('user'));
+  const token = userData.token;
 
   useEffect(() => {
-    // Fetch brands
+    // Fetch brands from the API
     axios.get('http://localhost:5000/api/brand')
       .then(response => {
         setBrands(response.data);
@@ -31,7 +29,7 @@ const AddProductForm = () => {
         console.error('Error fetching brands:', error);
       });
 
-    // Fetch categories
+    // Fetch categories from the API
     axios.get('http://localhost:5000/api/category')
       .then(response => {
         setCategories(response.data);
@@ -41,153 +39,101 @@ const AddProductForm = () => {
       });
   }, []);
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    setProductData({ ...productData, category });
-  };
-
-  const handleBrandChange = (brand) => {
-    setSelectedBrand(brand);
-    setProductData({ ...productData, brand });
-  };
-
-  const handleTagChange = (tag) => {
-    setSelectedTag(tag);
-    setProductData({ ...productData, tags: tag });
-  };
-
-  const handleChange = (e) => {
-    if (e.target.name === 'image') {
-      // Handle image file separately
-      setProductData({ ...productData, image: e.target.files[0] });
-    } else {
-      const { name, value } = e.target;
-      setProductData({ ...productData, [name]: value });
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const formData = new FormData();
-      formData.append('title', productData.title);
-      formData.append('description', productData.description);
-      formData.append('price', productData.price);
-      formData.append('category', productData.category);
-      formData.append('brand', productData.brand);
-      formData.append('quantity', productData.quantity);
-      formData.append('tags', productData.tags);
-      formData.append('image', productData.image);
-      //  Assuming 'image' is the name of the file input
-      
-      // Send POST request to create a new product
-      const response = await axios.post(`${base_url}product/upload`, formData, {
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('brand', brand);
+      formData.append('category', category);
+      formData.append('quantity', quantity);
+      formData.append('price', price);
+      formData.append('tags', tags);
+      formData.append('image', image);
+
+      const response = await axios.post('http://localhost:5000/api/product/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         }
       });
-      console.log(response)
-      console.log('Product added:', response.data);
-      // Optionally, perform additional actions after successful submission
+
+      if (response.status === 201) {
+        setSuccessMessage('Product created successfully!');
+        // Clear form fields
+        setTitle('');
+        setDescription('');
+        setBrand('');
+        setCategory('');
+        setQuantity('');
+        setPrice('');
+        setTags('');
+        setImage('');
+        // Refresh the page after 2 seconds
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        throw new Error('Failed to create product');
+      }
     } catch (error) {
-      console.error('Error adding product:', error);
-      // Optionally, handle error scenarios
+      console.error('Error creating product:', error.message);
+      alert('Failed to create product. Please try again later.');
     }
   };
-  
 
   return (
-    <div className="container">
-      <div className="mb-3">
-        <label className="form-label">Title:</label>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Enter title"
-          name="title"
-          value={productData.title}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Description:</label>
-        <textarea
-          className="form-control"
-          rows={3}
-          placeholder="Enter description"
-          name="description"
-          value={productData.description}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Price:</label>
-        <input
-          type="number"
-          className="form-control"
-          placeholder="Enter price"
-          name="price"
-          value={productData.price}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="mb-3">
-  <label className="form-label">Category:</label>
-  <select className="form-select" onChange={(e) => handleCategoryChange(e.target.value)} value={selectedCategory}>
-    <option value="">Select Category</option>
-    {categories.map(category => (
-      <option key={category._id} value={category.title}>{category.title}</option>
-    ))}
-  </select>
-</div>
-<div className="mb-3">
-  <label className="form-label">Brand:</label>
-  <select className="form-select" onChange={(e) => handleBrandChange(e.target.value)} value={selectedBrand}>
-    <option value="">Select Brand</option>
-    {brands.map(brand => (
-      <option key={brand._id} value={brand.title}>{brand.title}</option>
-    ))}
-  </select>
-</div>
-
-      <div className="mb-3">
-        <label className="form-label">Quantity:</label>
-        <input
-          type="number"
-          className="form-control"
-          placeholder="Enter quantity"
-          name="quantity"
-          value={productData.quantity}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Tags:</label>
-        <select className="form-select" onChange={(e) => handleTagChange(e.target.value)} value={selectedTag}>
-          <option value="">Select Tags</option>
-          <option value="Feature">Feature</option>
-          <option value="Best Selling">Best Selling</option>
-          <option value="Most searched">Most searched</option>
-        </select>
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Image:</label>
-        <input
-          type="file"
-          className="form-control"
-          accept="image/*"
-          onChange={handleChange}
-          name="image"
-          required
-        />
-      </div>
-      <Button variant="primary" onClick={handleSubmit}>Add Product</Button>
+    <div className="container mt-5">
+      <h1 className="mb-4">Create Product</h1>
+      {/* Display success message if available */}
+      {successMessage && <p className="alert alert-success">{successMessage}</p>}
+      <form>
+        {/* Form fields */}
+        <div className="mb-3">
+          <input type="text" className="form-control" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" required />
+        </div>
+        <div className="mb-3">
+          <textarea className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" required></textarea>
+        </div>
+        <div className="mb-3">
+          <select className="form-select" value={brand} onChange={(e) => setBrand(e.target.value)} required>
+            <option value="">Select Brand</option>
+            {brands.map(brand => (
+              <option key={brand._id} value={brand.title}>{brand.title}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)} required>
+            <option value="">Select Category</option>
+            {categories.map(category => (
+              <option key={category._id} value={category.title}>{category.title}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <input type="number" className="form-control" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Quantity" required />
+        </div>
+        <div className="mb-3">
+          <input type="number" className="form-control" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" required />
+        </div>
+        <div className="mb-3">
+          <select className="form-select" value={tags} onChange={(e) => setTags(e.target.value)} required>
+            <option value="">Select Tag</option>
+            <option value="feature">Feature</option>
+            <option value="recent">Recent</option>
+            <option value="most-searched">Most Searched</option>
+          </select>
+        </div>
+        <div className="mb-3">
+          <input type="file" className="form-control" onChange={(e) => setImage(e.target.files[0])} accept="image/*" required />
+        </div>
+        <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Create Product</button>
+      </form>
     </div>
   );
-};
+}
 
-export default AddProductForm;
+export default CreateProduct;

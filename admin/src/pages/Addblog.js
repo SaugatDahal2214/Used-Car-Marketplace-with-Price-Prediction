@@ -1,202 +1,95 @@
-import { React, useEffect, useState } from "react";
-import CustomInput from "../components/CustomInput";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import Dropzone from "react-dropzone";
-import { delImg, uploadImg } from "../features/upload/uploadSlice";
-import { toast } from "react-toastify";
-import * as yup from "yup";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { useFormik } from "formik";
-import {
-  createBlogs,
-  getABlog,
-  resetState,
-  updateABlog,
-} from "../features/blogs/blogSlice";
-import { getCategories } from "../features/bcategory/bcategorySlice";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-let schema = yup.object().shape({
-  title: yup.string().required("Title is Required"),
-  description: yup.string().required("Description is Required"),
-  category: yup.string().required("Category is Required"),
-});
-const Addblog = () => {
-  const dispatch = useDispatch();
+function CreateProduct() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const getBlogId = location.pathname.split("/")[3];
-  const imgState = useSelector((state) => state.upload.images);
-  const bCatState = useSelector((state) => state.bCategory.bCategories);
-  const blogState = useSelector((state) => state.blogs);
-  const {
-    isSuccess,
-    isError,
-    isLoading,
-    createdBlog,
-    blogName,
-    blogDesc,
-    blogCategory,
-    blogImages,
-    updatedBlog,
-  } = blogState;
-  useEffect(() => {
-    if (getBlogId !== undefined) {
-      dispatch(getABlog(getBlogId));
-      img.push(blogImages);
-    } else {
-      dispatch(resetState());
-    }
-  }, [getBlogId]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [image, setImage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [brands, setBrands] = useState([]);
+ 
+  const userData = JSON.parse(localStorage.getItem('user'));
+  const token = userData.token;
 
   useEffect(() => {
-    dispatch(resetState());
-    dispatch(getCategories());
+    // Fetch brands from the API
+    axios.get('http://localhost:5000/api/blogcategory')
+      .then(response => {
+        setBrands(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching categories:', error);
+      });
   }, []);
 
-  useEffect(() => {
-    if (isSuccess && createdBlog) {
-      toast.success("Blog Added Successfullly!");
-    }
-    if (isSuccess && updatedBlog) {
-      toast.success("Blog Updated Successfullly!");
-      navigate("/admin/blog-list");
-    }
-    if (isError) {
-      toast.error("Something Went Wrong!");
-    }
-  }, [isSuccess, isError, isLoading]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const img = [];
-  imgState.forEach((i) => {
-    img.push({
-      public_id: i.public_id,
-      url: i.url,
-    });
-  });
-  console.log(img);
-  useEffect(() => {
-    formik.values.images = img;
-  }, [blogImages]);
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('category', category);
+      formData.append('image', image);
 
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      title: blogName || "",
-      description: blogDesc || "",
-      category: blogCategory || "",
-      images: "",
-    },
-    validationSchema: schema,
-    onSubmit: (values) => {
-      if (getBlogId !== undefined) {
-        const data = { id: getBlogId, blogData: values };
-        dispatch(updateABlog(data));
-        dispatch(resetState());
-      } else {
-        dispatch(createBlogs(values));
-        formik.resetForm();
+      const response = await axios.post('http://localhost:5000/api/blog/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 201) {
+        setSuccessMessage('Blog created successfully!');
+        // Clear form fields
+        setTitle('');
+        setDescription('');
+        setCategory('');
+        setImage('');
+        // Refresh the page after 2 seconds
         setTimeout(() => {
-          dispatch(resetState());
-        }, 300);
+          window.location.reload();
+        }, 2000);
+      } else {
+        throw new Error('Failed to create blog');
       }
-    },
-  });
+    } catch (error) {
+      console.error('Error creating product:', error.message);
+      alert('Failed to create product. Please try again later.');
+    }
+  };
 
   return (
-    <div>
-      <h3 className="mb-4 title">
-        {getBlogId !== undefined ? "Edit" : "Add"} Blog
-      </h3>
-
-      <div className="">
-        <form action="" onSubmit={formik.handleSubmit}>
-          <div className="mt-4">
-            <CustomInput
-              type="text"
-              label="Enter Blog Title"
-              name="title"
-              onChng={formik.handleChange("title")}
-              onBlr={formik.handleBlur("title")}
-              val={formik.values.title}
-            />
-          </div>
-          <div className="error">
-            {formik.touched.title && formik.errors.title}
-          </div>
-          <select
-            name="category"
-            onChange={formik.handleChange("category")}
-            onBlur={formik.handleBlur("category")}
-            value={formik.values.category}
-            className="form-control py-3  mt-3"
-            id=""
-          >
-            <option value="">Select Blog Category</option>
-            {bCatState.map((i, j) => {
-              return (
-                <option key={j} value={i.title}>
-                  {i.title}
-                </option>
-              );
-            })}
+    <div className="container mt-5">
+      <h1 className="mb-4">Create Blog</h1>
+      {/* Display success message if available */}
+      {successMessage && <p className="alert alert-success">{successMessage}</p>}
+      <form>
+        {/* Form fields */}
+        <div className="mb-3">
+          <input type="text" className="form-control" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" required />
+        </div>
+        <div className="mb-3">
+          <textarea className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" required></textarea>
+        </div>
+        <div className="mb-3">
+          <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)} required>
+            <option value="">Select Category</option>
+            {brands.map(category => (
+              <option key={category._id} value={category.title}>{category.title}</option>
+            ))}
           </select>
-          <div className="error">
-            {formik.touched.category && formik.errors.category}
-          </div>
-          <ReactQuill
-            theme="snow"
-            className="mt-3"
-            name="description"
-            onChange={formik.handleChange("description")}
-            value={formik.values.description}
-          />
-          <div className="error">
-            {formik.touched.description && formik.errors.description}
-          </div>
-          <div className="bg-white border-1 p-5 text-center mt-3">
-            <Dropzone
-              onDrop={(acceptedFiles) => dispatch(uploadImg(acceptedFiles))}
-            >
-              {({ getRootProps, getInputProps }) => (
-                <section>
-                  <div {...getRootProps()}>
-                    <input {...getInputProps()} />
-                    <p>
-                      Drag 'n' drop some files here, or click to select files
-                    </p>
-                  </div>
-                </section>
-              )}
-            </Dropzone>
-          </div>
-          <div className="showimages d-flex flex-wrap mt-3 gap-3">
-            {imgState?.map((i, j) => {
-              return (
-                <div className=" position-relative" key={j}>
-                  <button
-                    type="button"
-                    onClick={() => dispatch(delImg(i.public_id))}
-                    className="btn-close position-absolute"
-                    style={{ top: "10px", right: "10px" }}
-                  ></button>
-                  <img src={i.url} alt="" width={200} height={200} />
-                </div>
-              );
-            })}
-          </div>
-
-          <button
-            className="btn btn-success border-0 rounded-3 my-5"
-            type="submit"
-          >
-            {getBlogId !== undefined ? "Edit" : "Add"} Blog
-          </button>
-        </form>
-      </div>
+        </div>
+        <div className="mb-3">
+          <input type="file" className="form-control" onChange={(e) => setImage(e.target.files[0])} accept="image/*" required />
+        </div>
+        <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Create Product</button>
+      </form>
     </div>
   );
-};
+}
 
-export default Addblog;
+export default CreateProduct;

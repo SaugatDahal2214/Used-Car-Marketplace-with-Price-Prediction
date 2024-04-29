@@ -361,6 +361,44 @@ const getWishlist = asyncHandler(async (req, res) => {
   }
 });
 
+// Remove item from wishlist
+const removeFromWishlist = async (req, res) => {
+  const itemId = req.params.id;
+  const userId = req.user.id;
+
+  try {
+    // Find the user by id
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the item exists in the wishlist
+    const indexToRemove = user.wishlist.indexOf(itemId);
+
+    if (indexToRemove === -1) {
+      return res.status(404).json({ message: 'Item not found in wishlist' });
+    }
+
+    // Remove the item from the wishlist array
+    user.wishlist.splice(indexToRemove, 1);
+
+    // Save the updated user document
+    await user.save();
+
+    res.status(200).json({ message: 'Item removed from wishlist successfully' });
+  } catch (error) {
+    console.error('Error removing item from wishlist:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+
+
+
 const userCart = asyncHandler(async (req, res) => {
   const { cart } = req.body;
   const { _id } = req.user;
@@ -526,7 +564,37 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 });
 
 
+
+// Controller function for adding items to the user's wishlist
+const addToWishlist = async (req, res) => {
+  try {
+    // Extract the product data from the request body
+    const { product } = req.body;
+
+    // Find the authenticated user based on the user ID stored in req.user
+    const user = await User.findById(req.user.id);
+
+    // Add the product to the user's wishlist array
+    user.wishlist.push(product);
+    
+    // Save the updated user object
+    await user.save();
+
+    // Respond with a success message
+    res.status(200).json({ message: 'Item added to wishlist successfully' });
+  } catch (error) {
+    // Handle any errors
+    console.error('Error adding item to wishlist:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+
 module.exports = {
+  removeFromWishlist,
+  addToWishlist,
   createUser,
   loginUserController,
   loginAdmin,

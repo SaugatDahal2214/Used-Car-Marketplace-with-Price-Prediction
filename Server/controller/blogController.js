@@ -4,12 +4,42 @@ const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbld");
 const { cloudinaryUploadImg } = require("../utils/cloudinary");
 const fs = require("fs");
+
+
+// const createBlog = asyncHandler(async (req, res) => {
+//   try {
+//     const newBlog = await Blog.create(req.body);
+//     res.json(newBlog);
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
+
 const createBlog = asyncHandler(async (req, res) => {
+  // console.log(req.file, req.body, 5);
   try {
-    const newBlog = await Blog.create(req.body);
-    res.json(newBlog);
-  } catch (error) {
-    throw new Error(error);
+    const title = req.body.title;
+    const description = req.body.description;
+    const category = req.body.category;
+    const imageUrl = req.file.path;
+
+
+    if (!title || !description|| !category || !imageUrl) {
+      return res.status(400).json({ message: "Bad Request" });
+    }
+
+    const newBlog = new Blog({
+      title: title,
+      description: description,
+      category: category,
+      imageUrl: imageUrl
+    });
+    
+    await newBlog.save();
+
+    return res.status(201).json({ message: "Blog created successfully", product: newProduct });
+  } catch (err) {
+    throw new Error(err);
   }
 });
 

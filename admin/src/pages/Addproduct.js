@@ -12,6 +12,9 @@ function CreateProduct() {
   const [price, setPrice] = useState('');
   const [tags, setTags] = useState('');
   const [image, setImage] = useState('');
+  const [color, setColor] = useState(''); // New state for color
+  const [engine, setEngine] = useState(''); // New state for engine
+  const [year, setYear] = useState(''); // New state for year
   const [successMessage, setSuccessMessage] = useState('');
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -52,6 +55,9 @@ function CreateProduct() {
       formData.append('price', price);
       formData.append('tags', tags);
       formData.append('image', image);
+      formData.append('color', color); // Add color to form data
+      formData.append('engine', engine); // Add engine to form data
+      formData.append('year', year); // Add year to form data
 
       const response = await axios.post('http://localhost:5000/api/product/', formData, {
         headers: {
@@ -71,6 +77,9 @@ function CreateProduct() {
         setPrice('');
         setTags('');
         setImage('');
+        setColor(''); // Reset color field
+        setEngine(''); // Reset engine field
+        setYear(''); // Reset year field
         // Refresh the page after 2 seconds
         setTimeout(() => {
           window.location.reload();
@@ -126,6 +135,15 @@ function CreateProduct() {
             <option value="recent">Recent</option>
             <option value="most-searched">Most Searched</option>
           </select>
+        </div>
+        <div className="mb-3">
+          <input type="text" className="form-control" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" required />
+        </div>
+        <div className="mb-3">
+          <input type="text" className="form-control" value={engine} onChange={(e) => setEngine(e.target.value)} placeholder="Engine" required />
+        </div>
+        <div className="mb-3">
+          <input type="text" className="form-control" value={year} onChange={(e) => setYear(e.target.value)} placeholder="Year" required />
         </div>
         <div className="mb-3">
           <input type="file" className="form-control" onChange={(e) => setImage(e.target.files[0])} accept="image/*" required />

@@ -5,9 +5,11 @@ const {
   deleteBrand,
   getBrand,
   getallBrand,
+  getSuggestions
 } = require("../controller/brandController");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
+
 
 router.post("/", authMiddleware, isAdmin, createBrand);
 router.put("/:id", authMiddleware, isAdmin, updateBrand);

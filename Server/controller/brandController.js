@@ -50,6 +50,9 @@ const getallBrand = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+
+
 module.exports = {
   createBrand,
   updateBrand,

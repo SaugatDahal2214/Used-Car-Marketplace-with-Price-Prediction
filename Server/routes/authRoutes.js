@@ -47,7 +47,7 @@ router.get("/get-orders", authMiddleware, getOrders);
 router.get("/getallorders", authMiddleware, isAdmin, getAllOrders);
 router.post("/getorderbyuser/:id", authMiddleware, isAdmin, getOrderByUserId);
 router.get("/cart", authMiddleware, getUserCart);
-router.get("/:id", authMiddleware, isAdmin, GetSingleUser);
+router.get("/:id", authMiddleware,  GetSingleUser);
 
 router.delete("/empty-cart", authMiddleware, emptyCart);
 router.delete("/:id", RemoveUser);

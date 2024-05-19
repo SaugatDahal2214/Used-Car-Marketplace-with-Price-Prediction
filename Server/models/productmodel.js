@@ -32,6 +32,21 @@ var productSchema  = new mongoose.Schema(
       default: 0,
     },
 
+    color:{
+      type:String,
+      required:true,
+    },
+
+    engine:{
+      type: Number,
+      required: true
+    },
+
+    year:{
+      type: String,
+      required: true
+    },
+
     imageUrl:String,
 
      tags: String,

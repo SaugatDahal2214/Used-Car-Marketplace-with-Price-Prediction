@@ -16,10 +16,13 @@ const createProduct = asyncHandler(async (req, res) => {
     const tags = req.body.tags;
     const quantity = req.body.quantity;
     const price = req.body.price;
+    const color = req.body.color;
+    const engine = req.body.engine;
+    const year = req.body.year;
     const imageUrl = req.file.path;
 
 
-    if (!title || !description || !brand || !category || !quantity || !tags || !imageUrl || !price) {
+    if (!title || !description || !brand || !category || !quantity || !tags || !imageUrl || !price || !color || !engine || !year) {
       return res.status(400).json({ message: "Bad Request" });
     }
 
@@ -31,6 +34,9 @@ const createProduct = asyncHandler(async (req, res) => {
       category: category,
       quantity: quantity,
       tags: tags,
+      color:color,
+      engine:engine,
+      year:year,
       imageUrl: imageUrl
     });
     

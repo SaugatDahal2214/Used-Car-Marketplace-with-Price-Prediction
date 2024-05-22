@@ -3,6 +3,7 @@ const Cart = require("../models/cartModel")
 const Product = require("../models/productmodel")
 const Order = require("../models/orderModel")
 
+const validator = require('validator');
 
 const asyncHandler = require("express-async-handler");
 const generateToken = require("../config/jwtToken");

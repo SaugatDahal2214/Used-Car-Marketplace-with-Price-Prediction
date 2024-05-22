@@ -9,6 +9,7 @@ const {
   getSuggestions,
   uploadImage,
   searchProducts,
+  createProductRequest,
 } = require("../controller/productController");
 const { isAdmin, authMiddleware } = require("../middlewares/authMiddleware");
 const { uploadPhoto, productImgResize } = require("../middlewares/uploadImage")
@@ -29,6 +30,8 @@ const upload = multer({ storage });
 
 
 router.post("/",  upload.single('image'), createProduct);
+
+router.post('/add-request', createProductRequest);
 
 router.get("/suggestions", getSuggestions)
 router.get("/:id", getaProduct);

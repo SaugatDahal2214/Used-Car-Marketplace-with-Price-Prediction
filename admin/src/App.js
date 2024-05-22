@@ -24,6 +24,8 @@ import Addproduct from "./pages/Addproduct";
 // import AddCoupon from "./pages/AddCoupon";
 import EnquiryPage from "./pages/enquiry"
 import ViewOrder from "./pages/ViewOrder";
+import ProductRequestList from "./pages/ProductRequestList"
+
 function App() {
   return (
     <Router>
@@ -56,6 +58,7 @@ function App() {
           <Route path="list-brand" element={<Brandlist />} />
           <Route path="brand" element={<Addbrand />} />
           <Route path="brand/:id" element={<Addbrand />} />
+          <Route path="list-product-requests" element={<ProductRequestList />} />
           <Route path="list-product" element={<Productlist />} />
           <Route path="product" element={<Addproduct />} />
         </Route>

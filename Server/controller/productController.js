@@ -49,6 +49,49 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 
+const createProductRequest = asyncHandler(async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      brand,
+      category,
+      tags,
+      quantity,
+      price,
+      color,
+      engine,
+      year,
+      imageUrl,
+    } = req.body;
+
+    if (!title || !description || !brand || !category || !quantity || !tags || !price || !color || !engine || !year) {
+      return res.status(400).json({ message: "Bad Request" });
+    }
+
+    const newProduct = new Product({
+      title,
+      description,
+      brand,
+      price,
+      category,
+      quantity,
+      tags,
+      color,
+      engine,
+      year,
+      imageUrl,
+    });
+
+    await newProduct.save();
+    return res.status(201).json({ message: "Product created successfully", product: newProduct });
+  } catch (err) {
+    throw new Error(err);
+  }
+});
+
+
+
 const updateProduct = asyncHandler(async (req, res) => {
     const id = req.params.id; // Extract the ID from req.params
     validateMongoDbId(id);
@@ -197,6 +240,7 @@ module.exports = {
   updateProduct,
   deleteProduct,
   addToWishlist,
-  getSuggestions
+  getSuggestions,
+  createProductRequest,
 //   rating,
 };

@@ -1,168 +1,50 @@
-import React from "react";
-import { BsArrowDownRight, BsArrowUpRight } from "react-icons/bs";
-import { Column } from "@ant-design/plots";
-import { Table } from "antd";
-const columns = [
-  {
-    title: "SNo",
-    dataIndex: "key",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-  },
-  {
-    title: "Product",
-    dataIndex: "product",
-  },
-  {
-    title: "Status",
-    dataIndex: "staus",
-  },
-];
-const data1 = [];
-for (let i = 0; i < 46; i++) {
-  data1.push({
-    key: i,
-    name: `Edward King ${i}`,
-    product: 32,
-    staus: `London, Park Lane no. ${i}`,
-  });
-}
+import React, { useEffect } from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+
+// Add Google Fonts
+const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f5;
+  }
+`;
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image: linear-gradient(to right, #172547 0%, #0a75ad 100%);
+`;
+
+const Title = styled.h1`
+  font-size: 3rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+`;
+
 const Dashboard = () => {
-  const data = [
-    {
-      type: "Jan",
-      sales: 38,
-    },
-    {
-      type: "Feb",
-      sales: 52,
-    },
-    {
-      type: "Mar",
-      sales: 61,
-    },
-    {
-      type: "Apr",
-      sales: 145,
-    },
-    {
-      type: "May",
-      sales: 48,
-    },
-    {
-      type: "Jun",
-      sales: 38,
-    },
-    {
-      type: "July",
-      sales: 38,
-    },
-    {
-      type: "Aug",
-      sales: 38,
-    },
-    {
-      type: "Sept",
-      sales: 38,
-    },
-    {
-      type: "Oct",
-      sales: 38,
-    },
-    {
-      type: "Nov",
-      sales: 38,
-    },
-    {
-      type: "Dec",
-      sales: 38,
-    },
-  ];
-  const config = {
-    data,
-    xField: "type",
-    yField: "sales",
-    color: ({ type }) => {
-      return "#ffd333";
-    },
-    // label: {
-    //   position: "middle",
-    //   style: {
-    //     fill: "#FFFFFF",
-    //     opacity: 1,
-    //   },
-    // },
-    xAxis: {
-      label: {
-        autoHide: true,
-        autoRotate: false,
-      },
-    },
-    meta: {
-      type: {
-        alias: "Month",
-      },
-      sales: {
-        alias: "Income",
-      },
-    },
-  };
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = localStorage.getItem('user'); // Replace 'user' with your actual key used in localStorage
+
+    if (!user) {
+      navigate('/');
+    }
+  }, [navigate]);
+
   return (
-    <div>
-      <h3 className="mb-4 title">Dashboard</h3>
-      <div className="d-flex justify-content-between align-items-center gap-3">
-        <div className="d-flex justify-content-between align-items-end flex-grow-1 bg-white p-3 roudned-3">
-          <div>
-            <p className="desc">Total</p>
-            <h4 className="mb-0 sub-title">$1100</h4>
-          </div>
-          <div className="d-flex flex-column align-items-end">
-            <h6>
-              <BsArrowDownRight /> 32%
-            </h6>
-            <p className="mb-0  desc">Compared To April 2023</p>
-          </div>
-        </div>
-        <div className="d-flex justify-content-between align-items-end flex-grow-1 bg-white p-3 roudned-3">
-          <div>
-            <p className="desc">Total</p>
-            <h4 className="mb-0 sub-title">$1100</h4>
-          </div>
-          <div className="d-flex flex-column align-items-end">
-            <h6 className="red">
-              <BsArrowDownRight /> 32%
-            </h6>
-            <p className="mb-0  desc">Compared To April 2023</p>
-          </div>
-        </div>
-        <div className="d-flex justify-content-between align-items-end flex-grow-1 bg-white p-3 roudned-3">
-          <div>
-            <p className="desc">Total</p>
-            <h4 className="mb-0 sub-title">$1100</h4>
-          </div>
-          <div className="d-flex flex-column align-items-end">
-            <h6 className="green">
-              <BsArrowDownRight /> 32%
-            </h6>
-            <p className="mb-0 desc">Compared To April 2023</p>
-          </div>
-        </div>
-      </div>
-      <div className="mt-4">
-        <h3 className="mb-5 title">Income Statics</h3>
-        <div>
-          <Column {...config} />
-        </div>
-      </div>
-      <div className="mt-4">
-        <h3 className="mb-5 title">Recent Orders</h3>
-        <div>
-          <Table columns={columns} dataSource={data1} />
-        </div>
-      </div>
-    </div>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Title>Welcome to CarRevs</Title>
+      </Container>
+    </>
   );
 };
 

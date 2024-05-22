@@ -6,6 +6,7 @@ import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../features/auth/authSlice";
 
+// Define validation schema
 let schema = yup.object().shape({
   email: yup
     .string()
@@ -13,9 +14,12 @@ let schema = yup.object().shape({
     .required("Email is Required"),
   password: yup.string().required("Password is Required"),
 });
+
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const authState = useSelector((state) => state.auth);
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -26,17 +30,15 @@ const Login = () => {
       dispatch(login(values));
     },
   });
-  const authState = useSelector((state) => state);
 
-  const { user, isError, isSuccess, isLoading, message } = authState.auth;
+  const { user, isError, isSuccess, isLoading, message } = authState;
 
   useEffect(() => {
     if (isSuccess) {
-      navigate("admin");
-    } else {
-      navigate("");
+      navigate("/admin");
     }
-  }, [user, isError, isSuccess, isLoading]);
+  }, [isSuccess, navigate]);
+
   return (
     <div className="py-5" style={{ background: "#ffd333", minHeight: "100vh" }}>
       <br />
@@ -48,9 +50,9 @@ const Login = () => {
         <h3 className="text-center title">Login</h3>
         <p className="text-center">Login to your account to continue.</p>
         <div className="error text-center">
-          {message.message === "Rejected" ? "You are not an Admin" : ""}
+          {message === "Rejected" ? "You are not an Admin" : ""}
         </div>
-        <form action="" onSubmit={formik.handleSubmit}>
+        <form onSubmit={formik.handleSubmit}>
           <CustomInput
             type="text"
             label="Email Address"
@@ -76,7 +78,7 @@ const Login = () => {
             {formik.touched.password && formik.errors.password}
           </div>
           <div className="mb-3 text-end">
-            <Link to="forgot-password" className="">
+            <Link to="/forgot-password" className="">
               Forgot Password?
             </Link>
           </div>

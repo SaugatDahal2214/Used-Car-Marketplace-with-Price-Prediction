@@ -14,6 +14,7 @@ const uploadRouter = require('./routes/uploadRoutes');
 const bodyParser = require('body-parser');
 const enquiryRoutes = require('./routes/enquiryRoutes');
 const predictionRoutes = require('./routes/predictionRoute');
+const productReqRoutes = require('./routes/productReqRoutes');
 
 const cors = require('cors');
 const { notFound, errorHandler } = require('./middlewares/ErrorHandler');
@@ -46,7 +47,7 @@ app.use('/api/color', colorRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api", enquiryRoutes);
 app.use("/api/prediction", predictionRoutes);
-
+app.use("/api/product-requests", productReqRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

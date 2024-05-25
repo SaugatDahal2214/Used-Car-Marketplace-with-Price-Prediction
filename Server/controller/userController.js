@@ -16,21 +16,63 @@ const sendEmail = require("./emailController");
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
+
+  // Check if the email is valid
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({ error: "Invalid email address" });
+  }
+
   const findUser = await User.findOne({ email: email });
 
-  if (!findUser) {
-    // Create new user
-    try {
-      const newUser = await User.create(req.body);
-      res.status(201).json({ newUser, msg: "User Created Successfully" });
-    } catch (error) {
-      console.error("Error creating user:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  } else {
-    throw new Error("User Already Exists");
+  if (findUser) {
+    return res.status(400).json({ error: "User Already Exists" });
+  }
+
+  // Send verification email
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  const verificationLink = "http://localhost:3000/login"
+
+  const emailData = {
+    to: email,
+    subject: "Email Verification",
+    html: `Email Verified Proceed to Login: <a href="${verificationLink}">Link</a>`,
+  };
+
+  try {
+    await sendEmail(emailData);
+
+    // Temporarily store the user data and verification token
+    const tempUser = new User({
+      ...req.body,
+      verificationToken,
+      isVerified: false,
+    });
+
+    await tempUser.save();
+    res.status(200).json({ msg: "Verification email sent. Please verify your email to complete registration." });
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    res.status(500).json({ error: "Failed to send verification email. Please try again later." });
   }
 });
+
+// Verify email function
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+
+  const user = await User.findOne({ verificationToken: token });
+
+  if (!user) {
+    return res.status(400).json({ error: "Invalid or expired verification token." });
+  }
+
+  user.isVerified = true;
+  user.verificationToken = undefined; // Clear the token after verification
+  await user.save();
+
+  res.status(200).json({ msg: "Email verified successfully. You can now log in." });
+});
+
 
 const loginUserController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -619,5 +661,6 @@ module.exports = {
   getOrders,
   getAllOrders,
   getOrderByUserId,
-  updateOrderStatus
+  updateOrderStatus,
+  verifyEmail
 };

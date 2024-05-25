@@ -4,12 +4,25 @@ const validateMongoDbId = require("../utils/validateMongodbld");
 
 const createBrand = asyncHandler(async (req, res) => {
   try {
-    const newBrand = await Brand.create(req.body);
-    res.json(newBrand);
+    const { title } = req.body;
+    if (!title) {
+      return res.status(400).json({ message: 'Brand title is required' });
+    }
+
+    // Check if brand already exists
+    let brand = await Brand.findOne({ title });
+    if (!brand) {
+      brand = new Brand({ title });
+      await brand.save();
+    }
+
+    res.status(200).json(brand);
   } catch (error) {
-    throw new Error(error);
+    console.error('Error handling brand:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
 const updateBrand = asyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongoDbId(id);

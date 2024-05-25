@@ -41,6 +41,22 @@ const productRequestSchema = new mongoose.Schema(
     },
     imageUrl: String,
     tags: String,
+    name: {
+      type: String,
+      required: true,
+    },
+    number: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      match: /.+\@.+\..+/,
+    },
+    kmsDriven: String,
+    transmissionType: String,
+    engineType: String
   },
   { timestamps: true }
 );

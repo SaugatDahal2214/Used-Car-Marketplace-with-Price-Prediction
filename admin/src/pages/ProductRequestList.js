@@ -19,6 +19,7 @@ const ProductRequestList = () => {
           throw new Error('Failed to fetch product requests');
         }
         const data = await response.json();
+        console.log(data)
         setProductRequests(data);
         setLoading(false);
       } catch (error) {
@@ -65,13 +66,35 @@ const ProductRequestList = () => {
       const selectedCategory = selectedCategories[request._id] || '';
       const productData = { ...request, tags: selectedTag, category: selectedCategory };
 
-      const response = await fetch('http://localhost:5000/api/product/add-request', {
+      // First, add the brand name to the /api/brand endpoint
+      const brandResponse = await fetch('http://localhost:5000/api/brand', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(productData),
+        body: JSON.stringify({ title: request.brand }),
       });
+      console.log(request.brand)
+
+      if (!brandResponse.ok) {
+        const errorData = await brandResponse.json();
+        throw new Error(`Failed to store brand name: ${errorData.message}`);
+      }
+
+      const brandData = await brandResponse.json();
+      console.log("Brand added successfully", brandData);
+
+      // Then, add the product request
+      const response = await fetch('http://localhost:5000/api/product/add-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          
+        },
+        body: JSON.stringify(productData),
+        credentials: 'include', // Include credentials if needed
+      });
+      console.log(response.body)
 
       if (!response.ok) {
         throw new Error('Failed to add product');
@@ -129,6 +152,9 @@ const ProductRequestList = () => {
             <th>Color</th>
             <th>Engine</th>
             <th>Year</th>
+            <th>KM Driven</th>
+            <th>Transmission</th>
+            <th>Fuel</th>
             <th>Image</th>
             <th>Tags</th>
             <th>Actions</th>
@@ -159,6 +185,9 @@ const ProductRequestList = () => {
               <td>{request.color}</td>
               <td>{request.engine}</td>
               <td>{request.year}</td>
+              <td>{request.kmsDriven}</td>
+              <td>{request.transmissionType}</td>
+              <td>{request.engineType}</td>
               <td>
                 <img src={imageUrl + request.imageUrl} alt={request.title} style={{ width: '100px', height: 'auto' }} />
               </td>

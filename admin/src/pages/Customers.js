@@ -16,10 +16,6 @@ const columns = [
     title: "Email",
     dataIndex: "email",
   },
-  {
-    title: "Mobile",
-    dataIndex: "mobile",
-  },
 ];
 
 const Customers = () => {

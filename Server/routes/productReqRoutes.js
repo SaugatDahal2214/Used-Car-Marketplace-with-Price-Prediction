@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
-const ProductRequest = require("../models/ProductRequest");
+const ProductRequest = require("../models/productRequest");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -25,13 +25,38 @@ if (!fs.existsSync(uploadsDir)) {
 // Route to add a new product request
 router.post('/add', upload.single('image'), async (req, res) => {
   try {
-    const requestData = req.body;
+    const { title, description, price, category, brand, quantity, color, engine, year, tags, name, number, email, kmsDriven, transmissionType, engineType } = req.body;
+
+    if (!title || !description || !price || !brand || !quantity || !color || !engine || !year || !name || !number || !email || !kmsDriven || !transmissionType || !engineType) {
+      return res.status(400).json({ message: "All required fields must be provided" });
+    }
+
+    const requestData = {
+      title,
+      description,
+      price,
+      category,
+      brand,
+      quantity,
+      color,
+      engine,
+      year,
+      tags,
+      name,
+      number,
+      email,
+      kmsDriven,
+      transmissionType,
+      engineType
+    };
+
     if (req.file) {
       requestData.imageUrl = req.file.path;
     }
-    console.log(requestData, "dsa");
+
     const newProductRequest = new ProductRequest(requestData);
     await newProductRequest.save();
+    
     res.status(201).json({ message: "Product request added successfully", productRequest: newProductRequest });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });

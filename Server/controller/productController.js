@@ -63,12 +63,20 @@ const createProductRequest = asyncHandler(async (req, res) => {
       engine,
       year,
       imageUrl,
+      kmsDriven,
+      transmissionType,
+      engineType,
+      email,
+      name,
+      number
     } = req.body;
 
-    if (!title || !description || !brand || !category || !quantity || !tags || !price || !color || !engine || !year) {
+    // Validate that all required fields are provided
+    if (!title || !description || !brand || !category || !quantity || !tags || !price || !color || !engine || !year || !kmsDriven || !transmissionType || !engineType || !email || !name || !number) {
       return res.status(400).json({ message: "Bad Request" });
     }
 
+    // Create a new product instance with the provided data
     const newProduct = new Product({
       title,
       description,
@@ -81,12 +89,23 @@ const createProductRequest = asyncHandler(async (req, res) => {
       engine,
       year,
       imageUrl,
+      kmsDriven,
+      transmissionType,
+      engineType,
+      email,
+      name,
+      number
     });
 
+    // Save the new product to the database
     await newProduct.save();
+
+    // Respond with success message and the created product
     return res.status(201).json({ message: "Product created successfully", product: newProduct });
   } catch (err) {
-    throw new Error(err);
+    // Handle any errors
+    console.error(err);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

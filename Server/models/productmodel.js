@@ -17,7 +17,6 @@ var productSchema  = new mongoose.Schema(
     },
     category: {
       type: String,
-      required: true,
     },
     brand: {
       type: String,
@@ -27,31 +26,36 @@ var productSchema  = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    sold: {
-      type: Number,
-      default: 0,
-    },
-
-    color:{
-      type:String,
-      required:true,
-    },
-
-    engine:{
-      type: Number,
-      required: true
-    },
-
-    year:{
+    color: {
       type: String,
-      required: true
+      required: true,
     },
-
-    imageUrl:String,
-
-     tags: String,
-    
-
+    engine: {
+      type: Number,
+      required: true,
+    },
+    year: {
+      type: String,
+      required: true,
+    },
+    imageUrl: String,
+    tags: String,
+    name: {
+      type: String,
+      required: true,
+    },
+    number: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      match: /.+\@.+\..+/,
+    },
+    kmsDriven: String,
+    transmissionType: String,
+    engineType: String
   },
   { timestamps: true }
 );

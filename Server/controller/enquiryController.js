@@ -1,42 +1,59 @@
-const Enquiry = require('../models/enquiryModel');
+const Enquiry = require('../models/enquiryModel'); // Import the Enquiry model if you're using Mongoose or any other ORM/ODM
 
-// Controller to handle the submission of an enquiry
 exports.submitEnquiry = async (req, res) => {
   try {
-    // Extract data from the request body
-    const { fullName, mobile, email, message } = req.body;
+    const { fullName, mobile, email, message, productId, productTitle, productName, productEmail, productNumber } = req.body;
 
-    // Create a new enquiry object
+    // Validation logic
+    if (!fullName || !mobile || !email || !message || !productId || !productTitle || !productName || !productEmail || !productNumber) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Assuming Enquiry is your Mongoose model for storing enquiries
     const enquiry = new Enquiry({
       fullName,
       mobile,
       email,
-      message
+      message,
+      productId,
+      productTitle,
+      productName,
+      productEmail,
+      productNumber
     });
 
     // Save the enquiry to the database
     await enquiry.save();
 
-    // Respond with a success message
+    // Respond with success message
     res.status(201).json({ message: 'Enquiry submitted successfully' });
   } catch (error) {
-    // If an error occurs, respond with an error message
     console.error('Error submitting enquiry:', error);
     res.status(500).json({ error: 'Failed to submit enquiry' });
   }
 };
 
+
+
 // Controller to retrieve all enquiries
 exports.getAllEnquiries = async (req, res) => {
   try {
-    // Retrieve all enquiries from the database
     const enquiries = await Enquiry.find();
-
-    // Respond with the list of enquiries
     res.status(200).json(enquiries);
   } catch (error) {
-    // If an error occurs, respond with an error message
     console.error('Error fetching enquiries:', error);
     res.status(500).json({ error: 'Failed to fetch enquiries' });
+  }
+};
+
+// Controller to delete an enquiry
+exports.deleteEnquiry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Enquiry.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Enquiry deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting enquiry:', error);
+    res.status(500).json({ error: 'Failed to delete enquiry' });
   }
 };

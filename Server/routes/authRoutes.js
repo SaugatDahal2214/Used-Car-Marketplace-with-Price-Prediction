@@ -26,12 +26,14 @@ const {
   updateOrderStatus,
   addToWishlist,
   removeFromWishlist,
+  verifyEmail,
 } = require("../controller/userController");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
 router.post("/register", createUser);
+router.get('/verify-email/:token', verifyEmail);
 router.post("/login", loginUserController);
 router.post("/admin-login", loginAdmin);
 router.post("/cart", authMiddleware, userCart);

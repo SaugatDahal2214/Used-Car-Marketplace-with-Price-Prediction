@@ -15,6 +15,7 @@ const bodyParser = require('body-parser');
 const enquiryRoutes = require('./routes/enquiryRoutes');
 const predictionRoutes = require('./routes/predictionRoute');
 const productReqRoutes = require('./routes/productReqRoutes');
+const sendEmailRouter = require('./routes/sendEmail');
 
 const cors = require('cors');
 const { notFound, errorHandler } = require('./middlewares/ErrorHandler');
@@ -32,6 +33,7 @@ app.use(cookieParser());
 const corsOptions = {
     origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -48,6 +50,7 @@ app.use("/api/upload", uploadRouter);
 app.use("/api", enquiryRoutes);
 app.use("/api/prediction", predictionRoutes);
 app.use("/api/product-requests", productReqRoutes);
+app.use('/api/send-email', sendEmailRouter);
 
 app.use(notFound);
 app.use(errorHandler);
